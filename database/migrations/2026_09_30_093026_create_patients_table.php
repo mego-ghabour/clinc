@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('id_type')->nullable();
             $table->string('id_number')->nullable();
             $table->string('mobile')->nullable();
-            $table->string('nationality')->default('سعودي');
+            $table->string('nationality')->default('Ø³Ø¹ÙˆØ¯ÙŠ');
             $table->string('city')->nullable();
             $table->string('district')->nullable();
             $table->string('blood_type')->nullable();
