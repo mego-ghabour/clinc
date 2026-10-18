@@ -45,7 +45,8 @@ class QueueController extends Controller
                 'doctor_id' => $appointment->doctor_id,
                 'appointment_id' => $appointment->id,
                 'visit_date' => date('Y-m-d H:i:s'),
-                'status' => 'waiting' // Waiting for doctor/nurse
+                'type' => 'كشف جديد',
+                'status' => 'قيد الانتظار' // Waiting for doctor/nurse
             ]);
         }
 

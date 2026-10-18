@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -9,7 +10,7 @@ use Spatie\Activitylog\LogOptions;
 
 class Patient extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -31,10 +32,12 @@ class Patient extends Model
 
         static::creating(function ($patient) {
             if (empty($patient->mrn)) {
-                // Generate a unique MRN like MRN-000001
+                // Generate a unique MRN like PAT-000001
                 $lastPatient = self::withTrashed()->orderBy('id', 'desc')->first();
                 $nextId = $lastPatient ? $lastPatient->id + 1 : 1;
-                $patient->mrn = 'MRN-' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
+                $prefix = Setting::where('key', 'patient_prefix')->value('value') ?? 'PAT-';
+                $prefix = rtrim($prefix, '-') . '-';
+                $patient->mrn = $prefix . str_pad($nextId, 6, '0', STR_PAD_LEFT);
             }
         });
     }

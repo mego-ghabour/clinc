@@ -52,6 +52,18 @@ class AppServiceProvider extends ServiceProvider
             if (\Schema::hasTable('settings')) {
                 $settings = \App\Models\Setting::pluck('value', 'key')->toArray();
                 \View::share('global_settings', $settings);
+
+                // Dynamically apply Timezone
+                if (!empty($settings['app_timezone'])) {
+                    config(['app.timezone' => $settings['app_timezone']]);
+                    date_default_timezone_set($settings['app_timezone']);
+                }
+
+                // Dynamically apply Locale
+                if (!empty($settings['app_locale'])) {
+                    config(['app.locale' => $settings['app_locale']]);
+                    app()->setLocale($settings['app_locale']);
+                }
             }
         } catch (\Exception $e) {
             // Ignore for artisan commands

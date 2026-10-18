@@ -15,9 +15,9 @@
             <div>
                 <h2 class="text-xl font-black text-gray-800 font-mono">#{{ $invoice->invoice_number }}</h2>
                 <div class="flex items-center gap-2 mt-1">
-                    @if($invoice->status ==== 'paid')
+                    @if($invoice->status === 'paid')
                         <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[10px] font-black">مدفوعة بالكامل</span>
-                    @elseif($invoice->status ==== 'partially_paid')
+                    @elseif($invoice->status === 'partially_paid')
                         <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-black">مدفوعة جزئياً</span>
                     @else
                         <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-[10px] font-black">غير مدفوعة</span>
@@ -26,7 +26,7 @@
             </div>
         </div>
         <div class="flex items-center gap-3">
-            @if($invoice->status !=== 'paid')
+            @if($invoice->status !== 'paid')
             <button @click="showPaymentModal = true" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition flex items-center gap-2">
                 <i class="fa-solid fa-money-bill-wave"></i> تحصيل دفعة
             </button>
@@ -147,7 +147,7 @@
                 <div class="flex justify-between items-end border-t border-gray-100 pt-8">
                     <div class="w-2/3">
                         <h4 class="text-xs font-black text-gray-400 uppercase mb-2">ملاحظات / تعليمات:</h4>
-                        <p class="text-sm font-bold text-gray-600">{{ $invoice->notes ?? 'نتمنى لكم دوام الصحة والعافية.' }}</p>
+                        <p class="text-sm font-bold text-gray-600">{{ $invoice->notes ?: ($global_settings['invoice_terms'] ?? 'نتمنى لكم دوام الصحة والعافية.') }}</p>
                     </div>
                     <!-- Placeholder for ZATCA QR Code -->
                     <div class="w-24 h-24 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center p-2">

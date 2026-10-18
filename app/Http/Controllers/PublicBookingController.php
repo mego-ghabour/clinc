@@ -16,6 +16,10 @@ class PublicBookingController extends Controller
 {
     public function index()
     {
+        if (\App\Models\Setting::where('key', 'public_booking_enabled')->value('value') === '0') {
+            return view('booking.closed');
+        }
+
         $clinics = Clinic::where('status', 'نشطة')->get();
         // Assuming consultation fee is a specific service, or we just pull a default consultation service
         $consultationService = Service::where('name', 'like', '%كشف%')->orWhere('name', 'like', '%استشارة%')->first();
@@ -86,6 +90,10 @@ class PublicBookingController extends Controller
 
     public function store(Request $request)
     {
+        if (\App\Models\Setting::where('key', 'public_booking_enabled')->value('value') === '0') {
+            return response()->json(['success' => false, 'message' => 'بوابة الحجز الإلكتروني مغلقة حالياً.'], 403);
+        }
+
         $request->validate([
             // Patient data
             'first_name' => 'required|string',
@@ -104,29 +112,32 @@ class PublicBookingController extends Controller
 
         DB::beginTransaction();
         try {
-            // 1. Find or create patient by ID Number or Phone
+            // 1. Find or create patient by ID Number or Mobile
             $patient = Patient::where('id_number', $request->id_number)
-                              ->orWhere('phone', $request->phone)
+                              ->orWhere('mobile', $request->phone)
                               ->first();
 
             if (!$patient) {
-                // Generate a random MRN
-                $mrn = 'MRN-' . strtoupper(substr(uniqid(), -6));
+                // Generate MRN with dynamic prefix from settings
+                $prefix = \App\Models\Setting::where('key', 'patient_prefix')->value('value') ?? 'PAT-';
+                $mrn = rtrim($prefix, '-') . '-' . strtoupper(substr(uniqid(), -6));
                 
                 $patient = Patient::create([
-                    'name' => $request->first_name . ' ' . $request->last_name,
+                    'first_name' => $request->first_name,
+                    'family_name' => $request->last_name,
                     'mrn' => $mrn,
-                    'phone' => $request->phone,
+                    'mobile' => $request->phone,
+                    'id_type' => $request->id_type,
                     'id_number' => $request->id_number,
                     'gender' => $request->gender,
-                    // id_type is not in the db by default, we can skip or append to notes
-                    'notes' => 'نوع الهوية: ' . $request->id_type,
+                    'notes' => 'حجز إلكتروني',
                     'date_of_birth' => '1990-01-01' // Default/dummy since form doesn't ask
                 ]);
             } else {
                 // Update name just in case
                 $patient->update([
-                    'name' => $request->first_name . ' ' . $request->last_name,
+                    'first_name' => $request->first_name,
+                    'family_name' => $request->last_name,
                 ]);
             }
 
@@ -134,11 +145,10 @@ class PublicBookingController extends Controller
             $appointment = Appointment::create([
                 'patient_id' => $patient->id,
                 'doctor_id' => $request->doctor_id,
-                'clinic_id' => $request->clinic_id,
+                'service' => 'كشف عام',
                 'appointment_date' => $request->date,
                 'appointment_time' => $request->time,
                 'status' => 'مجدول', // Scheduled, not in reception yet
-                'type' => 'كشف',
                 'notes' => 'حجز أونلاين عبر البوابة'
             ]);
 

@@ -42,7 +42,9 @@ class Invoice extends Model
         static::creating(function ($model) {
             if (empty($model->invoice_number)) {
                 $lastId = self::withTrashed()->orderBy('id', 'desc')->first()?->id ?? 0;
-                $model->invoice_number = 'INV-' . date('Y') . '-' . str_pad($lastId + 1, 5, '0', STR_PAD_LEFT);
+                $prefix = Setting::where('key', 'invoice_prefix')->value('value') ?? 'INV-';
+                $prefix = rtrim($prefix, '-') . '-';
+                $model->invoice_number = $prefix . date('Y') . '-' . str_pad($lastId + 1, 5, '0', STR_PAD_LEFT);
             }
         });
     }

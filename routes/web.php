@@ -48,6 +48,9 @@ Route::middleware('auth')->group(function () {
     // Settings
     Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::post('settings/backups/create', [SettingController::class, 'createBackup'])->name('settings.backups.create');
+    Route::get('settings/backups/{filename}/download', [SettingController::class, 'downloadBackup'])->name('settings.backups.download');
+    Route::delete('settings/backups/{filename}', [SettingController::class, 'deleteBackup'])->name('settings.backups.delete');
 
     // Patients
     Route::resource('patients', PatientController::class)->except(['create', 'edit']);
@@ -83,7 +86,7 @@ Route::middleware('auth')->group(function () {
 
     // Doctor Schedules
     Route::resource('doctor-schedules', DoctorScheduleController::class)->only(['index', 'show', 'store']);
-    Route::resource('doctor-leaves', \App\Http\Controllers\DoctorLeaveController::class)->only(['store', 'destroy']);
+    Route::resource('doctor-leaves', \App\Http\Controllers\DoctorLeaveController::class)->parameters(['doctor-leaves' => 'doctor_leaf'])->only(['store', 'destroy']);
     Route::resource('services', \App\Http\Controllers\ServiceController::class)->except(['create', 'show', 'edit']);
     Route::resource('invoices', \App\Http\Controllers\InvoiceController::class);
     Route::post('invoices/{invoice}/payments', [\App\Http\Controllers\PaymentController::class, 'store'])->name('payments.store');

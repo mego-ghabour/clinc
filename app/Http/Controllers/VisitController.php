@@ -19,7 +19,8 @@ class VisitController extends Controller
 
         if ($request->has('search') && $request->search != '') {
             $query->whereHas('patient', function($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
+                $q->where('first_name', 'like', '%' . $request->search . '%')
+                  ->orWhere('family_name', 'like', '%' . $request->search . '%')
                   ->orWhere('mrn', 'like', '%' . $request->search . '%');
             });
         }
@@ -27,10 +28,10 @@ class VisitController extends Controller
         $visits = $query->paginate(15)->withQueryString();
         
         // Data for Add Modal
-        $patients = Patient::select('id', 'name', 'mrn')->get();
+        $patients = Patient::select('id', 'first_name', 'family_name', 'mrn')->get();
         $doctors = User::whereHas('roles', function($q) {
-            $q->where('name', 'like', '%Ø·Ø¨ÙŠØ¨%')->orWhere('name', 'like', '%Doctor%');
-        })->where('status', 'Ù†Ø´Ø·')->get();
+            $q->where('name', 'like', '%طبيب%')->orWhere('name', 'like', '%Doctor%');
+        })->where('status', 'نشط')->get();
 
         return view('visits.index', compact('visits', 'patients', 'doctors'));
     }
@@ -47,7 +48,7 @@ class VisitController extends Controller
 
         Visit::create($request->all());
 
-        return back()->with('success', 'ØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø²ÙŠØ§Ø±Ø© ÙˆÙØªØ­ Ø§Ù„Ù…Ù„Ù Ø§Ù„Ø·Ø¨ÙŠ Ø¨Ù†Ø¬Ø§Ø­.');
+        return back()->with('success', 'تم تسجيل الزيارة وفتح الملف الطبي بنجاح.');
     }
 
     public function show(Visit $visit)
@@ -56,7 +57,7 @@ class VisitController extends Controller
         return view('visits.show', compact('visit'));
     }
 
-        public function update(Request $request, Visit $visit)
+    public function update(Request $request, Visit $visit)
     {
         $visit->update($request->all());
 
@@ -75,7 +76,6 @@ class VisitController extends Controller
     public function destroy(Visit $visit)
     {
         $visit->delete();
-        return back()->with('success', 'ØªÙ… Ø­Ø°Ù Ø§Ù„Ø²ÙŠØ§Ø±Ø© Ø¨Ù†Ø¬Ø§Ø­.');
+        return back()->with('success', 'تم حذف الزيارة بنجاح.');
     }
 }
-

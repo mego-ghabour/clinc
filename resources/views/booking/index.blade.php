@@ -261,7 +261,7 @@
 
                 <div class="bg-blue-50 border border-blue-100 p-5 rounded-2xl flex justify-between items-center mb-8">
                     <span class="font-black text-blue-900">رسوم الكشف التقديرية</span>
-                    <span class="text-xl font-black text-blue-700 font-mono" dir="ltr">{{ $fee }} SAR</span>
+                    <span class="text-xl font-black text-blue-700 font-mono" dir="ltr">{{ $fee }} {{ $global_settings['currency'] ?? 'SAR' }}</span>
                 </div>
 
                 <div class="flex justify-between items-center border-t border-gray-100 pt-6">

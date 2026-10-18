@@ -91,6 +91,11 @@
                     <span class="text-sm">الزيارات والملفات الطبية</span>
                 </a>
 
+                <a href="{{ route('doctors.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('doctors*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
+                    <i class="fa-solid fa-user-doctor w-5 text-center"></i>
+                    <span class="text-sm">الأطباء والفريق الطبي</span>
+                </a>
+
                 <a href="{{ route('radiology.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('radiology*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
                     <i class="fa-solid fa-x-ray w-5 text-center"></i>
                     <span class="text-sm">قسم الأشعة والمختبرات</span>
@@ -122,7 +127,12 @@
                 
                 <a href="{{ route('system-users.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('system-users*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
                     <i class="fa-solid fa-user-tie w-5 text-center"></i>
-                    <span class="text-sm">المستخدمين والصلاحيات</span>
+                    <span class="text-sm">المستخدمين والموظفين</span>
+                </a>
+
+                <a href="{{ route('roles.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('roles*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
+                    <i class="fa-solid fa-user-shield w-5 text-center"></i>
+                    <span class="text-sm">الأدوار والصلاحيات</span>
                 </a>
 
                 <a href="{{ route('doctor-schedules.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('doctor-schedules*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
@@ -133,6 +143,11 @@
                 <a href="{{ route('clinics.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('clinics*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
                     <i class="fa-solid fa-door-open w-5 text-center"></i>
                     <span class="text-sm">الأقسام والعيادات</span>
+                </a>
+
+                <a href="{{ route('audit_logs.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('audit-logs*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
+                    <i class="fa-solid fa-shield-halved w-5 text-center"></i>
+                    <span class="text-sm">سجل التدقيق والرقابة</span>
                 </a>
 
                 <a href="{{ route('settings.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('settings*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">

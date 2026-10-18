@@ -72,9 +72,9 @@
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            @if($invoice->status ==== 'paid')
+                            @if($invoice->status === 'paid')
                                 <span class="bg-green-50 text-green-700 border border-green-200 px-3 py-1 rounded-lg text-xs font-black">مدفوعة بالكامل</span>
-                            @elseif($invoice->status ==== 'partially_paid')
+                            @elseif($invoice->status === 'partially_paid')
                                 <span class="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-lg text-xs font-black">مدفوعة جزئياً</span>
                             @else
                                 <span class="bg-red-50 text-red-700 border border-red-200 px-3 py-1 rounded-lg text-xs font-black">غير مدفوعة</span>
@@ -85,7 +85,7 @@
                                 <a href="{{ route('invoices.show', $invoice->id) }}" class="w-8 h-8 rounded-lg bg-gray-50 hover:bg-blue-50 text-gray-500 hover:text-blue-600 border border-gray-200 transition flex items-center justify-center" title="عرض الفاتورة ودفعها">
                                     <i class="fa-solid fa-eye text-xs"></i>
                                 </a>
-                                @if($invoice->status !=== 'paid')
+                                @if($invoice->status !== 'paid')
                                 <a href="{{ route('invoices.show', $invoice->id) }}?pay=true" class="w-8 h-8 rounded-lg bg-green-50 hover:bg-green-100 text-green-600 border border-green-200 transition flex items-center justify-center" title="إضافة دفعة">
                                     <i class="fa-solid fa-money-bill-wave text-xs"></i>
                                 </a>

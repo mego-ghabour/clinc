@@ -43,10 +43,8 @@ class User extends Authenticatable
         'is_present',
         'phone',
         'avatar',
-        'phone',
         'license_number',
         'consultation_duration',
-        'avatar',
     ];
 
     public function clinic()
@@ -74,6 +72,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_present' => 'boolean',
         ];
     }
 }

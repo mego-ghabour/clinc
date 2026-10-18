@@ -101,4 +101,22 @@ class PatientController extends Controller
         // Simple profile view for now
         return view('patients.show', compact('patient'));
     }
+
+    public function search(Request $request)
+    {
+        $query = $request->get('q') ?? $request->get('search');
+        if (!$query) {
+            return response()->json([]);
+        }
+
+        $patients = Patient::where('first_name', 'like', "%{$query}%")
+            ->orWhere('family_name', 'like', "%{$query}%")
+            ->orWhere('id_number', 'like', "%{$query}%")
+            ->orWhere('mobile', 'like', "%{$query}%")
+            ->orWhere('mrn', 'like', "%{$query}%")
+            ->take(10)
+            ->get(['id', 'first_name', 'family_name', 'mrn', 'mobile', 'avatar']);
+        
+        return response()->json($patients);
+    }
 }
