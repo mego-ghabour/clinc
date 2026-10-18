@@ -53,7 +53,7 @@
                 <p class="text-gray-400 text-sm">كلمة المرور التجريبية: Demo@123</p>
             </div>
 
-            <form action="/" method="POST" class="space-y-4">
+            <form action="{{ route('login.post') }}" method="POST" class="space-y-4">
                 @csrf
                 <div>
                     <label class="block text-sm font-medium text-gray-500 mb-1 text-right">اسم المستخدم</label>
@@ -70,7 +70,7 @@
                 </button>
             </form>
 
-            <a href="/booking" class="block text-center w-full bg-light-blue-custom text-teal-custom font-medium py-3 rounded-lg transition duration-200 mt-4 mb-6">
+            <a href="{{ route('booking.index') }}" class="block text-center w-full bg-light-blue-custom text-teal-custom font-medium py-3 rounded-lg transition duration-200 mt-4 mb-6">
                 حجز موعد أونلاين للمرضى
             </a>
 

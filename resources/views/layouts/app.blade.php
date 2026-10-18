@@ -55,7 +55,7 @@
         <aside :class="sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'" class="fixed lg:static inset-y-0 right-0 w-64 bg-teal-sidebar text-white flex flex-col transition-transform duration-300 shadow-2xl lg:shadow-xl z-50 flex-shrink-0 print:hidden h-full">
             <!-- Logo -->
             <div class="h-16 flex items-center justify-center border-b border-white/10 bg-black/10">
-                <a href="/dashboard" class="flex items-center gap-3">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
                     @php
                         $appLogo = \App\Models\Setting::where('key', 'app_logo')->value('value');
                         $appName = \App\Models\Setting::where('key', 'app_name')->value('value') ?? 'نظام عياداتي';
@@ -74,19 +74,19 @@
             <!-- Navigation Links -->
             <div class="flex-1 overflow-y-auto custom-scrollbar py-6 px-3 space-y-1.5">
                 <p class="text-[10px] uppercase font-bold text-teal-200/50 px-4 mb-2 tracking-wider">الرئيسية</p>
-                <a href="/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('dashboard') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('dashboard') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
                     <i class="fa-solid fa-chart-pie w-5 text-center"></i>
                     <span class="text-sm">لوحة القيادة</span>
                 </a>
                 
                 <p class="text-[10px] uppercase font-bold text-teal-200/50 px-4 mt-6 mb-2 tracking-wider">الاستقبال والعيادات</p>
                 
-                <a href="/patients" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('patients*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
+                <a href="{{ route('patients.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('patients*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
                     <i class="fa-solid fa-users w-5 text-center"></i>
                     <span class="text-sm">المرضى</span>
                 </a>
 
-                <a href="/visits" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('visits*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
+                <a href="{{ route('visits.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('visits*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
                     <i class="fa-solid fa-notes-medical w-5 text-center"></i>
                     <span class="text-sm">الزيارات والملفات الطبية</span>
                 </a>
@@ -96,7 +96,7 @@
                     <span class="text-sm">قسم الأشعة والمختبرات</span>
                 </a>
 
-                <a href="/appointments" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('appointments*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
+                <a href="{{ route('appointments.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('appointments*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
                     <i class="fa-regular fa-calendar-check w-5 text-center"></i>
                     <span class="text-sm">المواعيد</span>
                 </a>
@@ -130,7 +130,7 @@
                     <span class="text-sm">جداول عمل الأطباء</span>
                 </a>
 
-                <a href="/clinics" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('clinics*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
+                <a href="{{ route('clinics.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('clinics*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
                     <i class="fa-solid fa-door-open w-5 text-center"></i>
                     <span class="text-sm">الأقسام والعيادات</span>
                 </a>

@@ -12,7 +12,7 @@ class AuthController extends Controller
     {
         // If already logged in, redirect to dashboard or users
         if (Auth::check()) {
-            return redirect('/dashboard');
+            return redirect()->route('dashboard');
         }
         
         return view('auth.login');
@@ -48,7 +48,7 @@ class AuthController extends Controller
                 $user->update(['last_login_at' => now()]);
             }
 
-            return redirect()->intended('/dashboard');
+            return redirect()->intended(route('dashboard'));
         }
 
         return back()->withErrors([
