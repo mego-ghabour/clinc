@@ -94,6 +94,17 @@ Route::middleware('auth')->group(function () {
     Route::resource('radiology', \App\Http\Controllers\RadiologyRequestController::class)->except(['create', 'edit']);
 });
 
+// Storage Delivery Route (ensures images load on shared hosting / cPanel if symlink is missing or blocked)
+Route::get('storage/{path}', function ($path) {
+    $filePath = storage_path('app/public/' . $path);
+    if (!file_exists($filePath)) {
+        abort(404);
+    }
+    return response()->file($filePath, [
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*')->name('storage.file');
+
 
 
 
