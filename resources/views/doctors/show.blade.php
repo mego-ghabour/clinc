@@ -113,35 +113,104 @@
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
             
-            <!-- Schedule / Calendar Placeholder -->
+            <!-- Schedule / Calendar Section -->
             <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
                 <div class="flex justify-between items-center mb-6 border-b border-gray-50 pb-3">
                     <h3 class="font-black text-gray-800 flex items-center gap-2">
                         <i class="fa-solid fa-calendar-week text-teal-500"></i> جدول المواعيد والعمل
                     </h3>
-                    <a href="#" class="text-xs font-bold text-teal-600 hover:underline">عرض الجدول الكامل</a>
+                    <a href="{{ route('doctor-schedules.show', $doctor->id) }}" class="text-xs font-bold text-teal-600 hover:underline flex items-center gap-1">
+                        <span>إدارة وتعديل الجدول الكامل</span>
+                        <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                    </a>
                 </div>
                 
-                <div class="bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 p-8 text-center flex flex-col items-center justify-center">
-                    <i class="fa-solid fa-calendar-day text-5xl text-gray-300 mb-4"></i>
-                    <h4 class="font-bold text-gray-700 mb-1">لم يتم إعداد جدول أسبوعي بعد</h4>
-                    <p class="text-sm text-gray-500 max-w-sm mb-4">قم بإضافة أيام وساعات عمل الطبيب ليتمكن الموظفون من حجز مواعيد للمرضى لديه.</p>
-                    <button class="bg-teal-50 text-teal-600 hover:bg-teal-100 px-5 py-2 rounded-xl text-xs font-bold transition border border-teal-100">
-                        <i class="fa-solid fa-plus ml-1"></i> إعداد الجدول الأسبوعي (قريباً)
-                    </button>
-                </div>
+                @if($doctor->doctorSchedules && $doctor->doctorSchedules->where('is_working', true)->count() > 0)
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                        @foreach($doctor->doctorSchedules->where('is_working', true) as $sch)
+                            <div class="bg-teal-50/50 border border-teal-100 rounded-2xl p-3 flex justify-between items-center">
+                                <span class="font-bold text-teal-900 text-xs">{{ $sch->day_of_week }}</span>
+                                <div class="text-[11px] text-teal-700 font-mono flex flex-wrap gap-1">
+                                    @if(is_array($sch->shifts) && count($sch->shifts) > 0)
+                                        @foreach($sch->shifts as $shift)
+                                            <span class="bg-white px-2 py-0.5 rounded-lg border border-teal-100 shadow-xs">{{ $shift['start'] ?? '' }} - {{ $shift['end'] ?? '' }}</span>
+                                        @endforeach
+                                    @else
+                                        <span class="text-gray-400">فترة كاملة</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="text-left pt-2 border-t border-gray-50">
+                        <a href="{{ route('doctor-schedules.show', $doctor->id) }}" class="inline-flex items-center gap-1.5 bg-teal-50 text-teal-700 hover:bg-teal-100 px-4 py-2 rounded-xl text-xs font-bold transition border border-teal-100">
+                            <i class="fa-solid fa-pen-to-square"></i> تعديل الفترات وساعات الكشف
+                        </a>
+                    </div>
+                @else
+                    <div class="bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 p-8 text-center flex flex-col items-center justify-center">
+                        <i class="fa-solid fa-calendar-day text-5xl text-gray-300 mb-4"></i>
+                        <h4 class="font-bold text-gray-700 mb-1">لم يتم إعداد جدول أسبوعي بعد</h4>
+                        <p class="text-sm text-gray-500 max-w-sm mb-4">قم بإضافة أيام وساعات عمل الطبيب ومناوباته ليتمكن الموظفون من حجز مواعيد للمرضى لديه.</p>
+                        <a href="{{ route('doctor-schedules.show', $doctor->id) }}" class="bg-teal-600 text-white hover:bg-teal-700 px-5 py-2.5 rounded-xl text-xs font-bold transition shadow-sm inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus ml-1"></i> إعداد جدول العمل الأسبوعي
+                        </a>
+                    </div>
+                @endif
             </div>
 
-            <!-- Recent Appointments Placeholder -->
+            <!-- Recent Appointments Section -->
             <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-                <h3 class="font-black text-gray-800 mb-5 flex items-center gap-2 border-b border-gray-50 pb-3">
-                    <i class="fa-solid fa-notes-medical text-teal-500"></i> أحدث المواعيد (الحجوزات)
-                </h3>
-                
-                <div class="text-center py-10 bg-gray-50 rounded-2xl border border-gray-100">
-                    <i class="fa-solid fa-folder-open text-4xl text-gray-300 mb-3"></i>
-                    <p class="text-gray-500 text-sm font-bold">لا توجد أي حجوزات مسجلة لهذا الطبيب بعد.</p>
+                <div class="flex justify-between items-center mb-5 border-b border-gray-50 pb-3">
+                    <h3 class="font-black text-gray-800 flex items-center gap-2">
+                        <i class="fa-solid fa-notes-medical text-teal-500"></i> أحدث المواعيد (الحجوزات)
+                    </h3>
+                    <a href="{{ route('appointments.index', ['doctor_id' => $doctor->id]) }}" class="text-xs font-bold text-teal-600 hover:underline">
+                        عرض كافة المواعيد
+                    </a>
                 </div>
+                
+                @if(isset($recentAppointments) && $recentAppointments->count() > 0)
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs">
+                            <thead>
+                                <tr class="text-gray-400 border-b border-gray-100 font-bold">
+                                    <th class="pb-3">رقم الموعد</th>
+                                    <th class="pb-3">المريض</th>
+                                    <th class="pb-3">التاريخ والوقت</th>
+                                    <th class="pb-3">الحالة</th>
+                                    <th class="pb-3 text-left">التفاصيل</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50 font-medium text-gray-700">
+                                @foreach($recentAppointments as $apt)
+                                <tr class="hover:bg-gray-50/50 transition">
+                                    <td class="py-3 font-mono font-bold text-teal-700">{{ $apt->appointment_number }}</td>
+                                    <td class="py-3 font-bold">{{ $apt->patient->name ?? 'غير محدد' }}</td>
+                                    <td class="py-3 font-mono">{{ $apt->appointment_date }} | {{ $apt->appointment_time }}</td>
+                                    <td class="py-3">
+                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold 
+                                            {{ $apt->status == 'مكتمل' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 
+                                              ($apt->status == 'ملغي' ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-amber-50 text-amber-600 border border-amber-100') }}">
+                                            {{ $apt->status }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 text-left">
+                                        <a href="{{ route('appointments.index', ['search' => $apt->appointment_number]) }}" class="px-3 py-1 bg-gray-100 hover:bg-teal-50 hover:text-teal-700 rounded-lg text-[11px] font-bold transition">
+                                            معاينة
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="text-center py-10 bg-gray-50 rounded-2xl border border-gray-100">
+                        <i class="fa-solid fa-folder-open text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500 text-sm font-bold">لا توجد أي حجوزات مسجلة لهذا الطبيب بعد.</p>
+                    </div>
+                @endif
             </div>
 
         </div>

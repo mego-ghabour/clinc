@@ -52,6 +52,31 @@ class User extends Authenticatable
         return $this->belongsTo(\App\Models\Clinic::class);
     }
 
+    public function doctorSchedules()
+    {
+        return $this->hasMany(\App\Models\DoctorSchedule::class, 'doctor_id');
+    }
+
+    public function doctorLeaves()
+    {
+        return $this->hasMany(\App\Models\DoctorLeave::class, 'doctor_id');
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(\App\Models\Appointment::class, 'doctor_id');
+    }
+
+    public function prescriptions()
+    {
+        return $this->hasMany(\App\Models\Prescription::class, 'doctor_id');
+    }
+
+    public function visits()
+    {
+        return $this->hasMany(\App\Models\Visit::class, 'doctor_id');
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

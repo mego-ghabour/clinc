@@ -76,7 +76,13 @@
                 <p class="text-[10px] uppercase font-bold text-teal-200/50 px-4 mb-2 tracking-wider">الرئيسية</p>
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('dashboard') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
                     <i class="fa-solid fa-chart-pie w-5 text-center"></i>
-                    <span class="text-sm">لوحة القيادة</span>
+                    <span class="text-sm">لوحة التحكم</span>
+                </a>
+
+                <a href="{{ route('guide.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('guide*') ? 'bg-amber-500/20 text-amber-300 border-r-4 border-amber-400 font-bold' : 'text-amber-200/90 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
+                    <i class="fa-solid fa-book-open-reader w-5 text-center text-amber-400"></i>
+                    <span class="text-sm font-semibold">دليل وشرح النظام</span>
+                    <span class="mr-auto text-[9px] bg-amber-500/30 text-amber-200 px-2 py-0.5 rounded-full font-bold">شامل</span>
                 </a>
                 
                 <p class="text-[10px] uppercase font-bold text-teal-200/50 px-4 mt-6 mb-2 tracking-wider">الاستقبال والعيادات</p>
@@ -96,9 +102,19 @@
                     <span class="text-sm">الأطباء والفريق الطبي</span>
                 </a>
 
+                <a href="{{ route('lab-requests.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('lab-requests*') || request()->is('lab-tests*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
+                    <i class="fa-solid fa-flask-vial w-5 text-center"></i>
+                    <span class="text-sm">المختبر والتحاليل الطبية</span>
+                </a>
+
                 <a href="{{ route('radiology.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('radiology*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
                     <i class="fa-solid fa-x-ray w-5 text-center"></i>
-                    <span class="text-sm">قسم الأشعة والمختبرات</span>
+                    <span class="text-sm">قسم الأشعة والتصوير</span>
+                </a>
+
+                <a href="{{ route('prescriptions.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('prescriptions*') || request()->is('medicines*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
+                    <i class="fa-solid fa-pills w-5 text-center"></i>
+                    <span class="text-sm">الصيدلية والمخزون الدوائي</span>
                 </a>
 
                 <a href="{{ route('appointments.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('appointments*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
@@ -116,6 +132,11 @@
                 <a href="{{ route('invoices.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('invoices*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
                     <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
                     <span class="text-sm">الفواتير والمدفوعات</span>
+                </a>
+
+                <a href="{{ route('insurance-claims.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('insurance*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
+                    <i class="fa-solid fa-building-shield w-5 text-center"></i>
+                    <span class="text-sm">التأمين الطبي والمطالبات</span>
                 </a>
 
                 <a href="{{ route('services.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->is('services*') ? 'bg-white/10 text-white border-r-4 border-white' : 'text-gray-300 hover:bg-white/5 hover:text-white border-r-4 border-transparent' }}">
@@ -194,7 +215,12 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('guide.index') }}" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold transition border border-teal-200/80 shadow-sm" title="دليل الاستخدام والتشغيل الشامل">
+                        <i class="fa-solid fa-circle-question text-teal-600"></i>
+                        <span>دليل النظام</span>
+                    </a>
+
                     <div class="relative" x-data="{ notificationsOpen: false }">
                         <button @click="notificationsOpen = !notificationsOpen" class="w-10 h-10 rounded-full bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 transition flex items-center justify-center relative">
                             <i class="fa-regular fa-bell"></i>

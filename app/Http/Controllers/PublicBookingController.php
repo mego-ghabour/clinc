@@ -141,7 +141,23 @@ class PublicBookingController extends Controller
                 ]);
             }
 
-            // 2. Create the Appointment (Status Scheduled)
+            // 2. Prevent Double Booking
+            $conflict = Appointment::where('doctor_id', $request->doctor_id)
+                ->whereDate('appointment_date', $request->date)
+                ->where('appointment_time', $request->time)
+                ->where('status', '!=', 'ملغي')
+                ->lockForUpdate()
+                ->exists();
+
+            if ($conflict) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'عذراً، هذا الموعد تم حجزه للتو من قبل مراجع آخر. يرجى اختيار موعد آخر متاح.'
+                ], 422);
+            }
+
+            // 3. Create the Appointment (Status Scheduled)
             $appointment = Appointment::create([
                 'patient_id' => $patient->id,
                 'doctor_id' => $request->doctor_id,
@@ -154,9 +170,12 @@ class PublicBookingController extends Controller
 
             DB::commit();
 
+            // 4. Send automated WhatsApp confirmation
+            app(\App\Services\WhatsAppService::class)->sendBookingConfirmation($appointment);
+
             return response()->json([
                 'success' => true,
-                'message' => 'تم الحجز بنجاح',
+                'message' => 'تم الحجز بنجاح وإرسال تأكيد الموعد عبر الواتساب.',
                 'appointment_id' => $appointment->id
             ]);
 

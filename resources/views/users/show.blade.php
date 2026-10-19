@@ -109,18 +109,76 @@
             </div>
         </div>
         <div class="md:col-span-2">
-            <div class="bg-white p-12 rounded-3xl shadow-sm border border-gray-100 text-center flex flex-col items-center justify-center h-full">
-                <i class="fa-solid fa-chart-pie text-5xl text-gray-200 mb-4"></i>
-                <h3 class="font-bold text-gray-700 text-lg mb-2">إحصائيات الطبيب (قريباً)</h3>
-                <p class="text-sm text-gray-500 font-bold max-w-sm">ستظهر هنا إحصائيات دقيقة بعدد المرضى الذين عالجهم، المواعيد التي أنجزها، وإجمالي الإيرادات المرتبطة به.</p>
+            @php
+                $docAppointmentsCount = \App\Models\Appointment::where('doctor_id', $user->id)->count();
+                $docCompletedCount = \App\Models\Appointment::where('doctor_id', $user->id)->where('status', 'مكتمل')->count();
+                $docVisitsCount = \App\Models\Visit::where('doctor_id', $user->id)->count();
+                $docPrescriptionsCount = \App\Models\Prescription::where('doctor_id', $user->id)->count();
+            @endphp
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 h-full flex flex-col justify-between">
+                <div>
+                    <h3 class="font-black text-gray-800 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-teal-500"></i> المؤشرات السريرية للطبيب
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-teal-50/60 p-4 rounded-2xl border border-teal-100">
+                            <p class="text-xs text-teal-800 font-bold mb-1">إجمالي الحجوزات</p>
+                            <p class="text-2xl font-black text-teal-900 font-mono">{{ $docAppointmentsCount }}</p>
+                            <span class="text-[10px] text-teal-600">موعد مسجل</span>
+                        </div>
+                        <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100">
+                            <p class="text-xs text-emerald-800 font-bold mb-1">المواعيد المنجزة</p>
+                            <p class="text-2xl font-black text-emerald-900 font-mono">{{ $docCompletedCount }}</p>
+                            <span class="text-[10px] text-emerald-600">حالة مكتملة</span>
+                        </div>
+                        <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-100">
+                            <p class="text-xs text-blue-800 font-bold mb-1">الزيارات السريرية</p>
+                            <p class="text-2xl font-black text-blue-900 font-mono">{{ $docVisitsCount }}</p>
+                            <span class="text-[10px] text-blue-600">كشف طبي</span>
+                        </div>
+                        <div class="bg-purple-50/60 p-4 rounded-2xl border border-purple-100">
+                            <p class="text-xs text-purple-800 font-bold mb-1">الوصفات الطبية</p>
+                            <p class="text-2xl font-black text-purple-900 font-mono">{{ $docPrescriptionsCount }}</p>
+                            <span class="text-[10px] text-purple-600">روشتة صادرة</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-gray-50 flex justify-between items-center text-xs">
+                    <span class="text-gray-400 font-medium">معدل الإنجاز:</span>
+                    <span class="font-bold text-teal-700 font-mono">
+                        {{ $docAppointmentsCount > 0 ? round(($docCompletedCount / $docAppointmentsCount) * 100) : 100 }}%
+                    </span>
+                </div>
             </div>
         </div>
         @else
         <div class="md:col-span-3">
-            <div class="bg-white p-12 rounded-3xl shadow-sm border border-gray-100 text-center flex flex-col items-center justify-center">
-                <i class="fa-solid fa-chart-line text-5xl text-gray-200 mb-4"></i>
-                <h3 class="font-bold text-gray-700 text-lg mb-2">لوحة إحصائيات الموظف</h3>
-                <p class="text-sm text-gray-500 font-bold max-w-sm">نظام الإحصائيات الشامل قيد التطوير وسيتم ربطه بهذا الحساب قريباً.</p>
+            @php
+                $userActionsCount = \Spatie\Activitylog\Models\Activity::where('causer_id', $user->id)->count();
+            @endphp
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                <h3 class="font-black text-gray-800 text-base mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-teal-500"></i> نشاط وسجل الموظف
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                        <p class="text-xs text-gray-500 font-bold mb-1">إجمالي العمليات المنفذة</p>
+                        <p class="text-2xl font-black text-gray-900 font-mono">{{ $userActionsCount }}</p>
+                        <span class="text-[10px] text-gray-400">عملية مسجلة في سجل التدقيق</span>
+                    </div>
+                    <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100">
+                        <p class="text-xs text-emerald-800 font-bold mb-1">حالة الحساب</p>
+                        <p class="text-xl font-black text-emerald-900">{{ $user->status }}</p>
+                        <span class="text-[10px] text-emerald-600">مصرح له بالوصول</span>
+                    </div>
+                    <div class="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100">
+                        <p class="text-xs text-indigo-800 font-bold mb-1">آخر تسجيل دخول</p>
+                        <p class="text-sm font-black text-indigo-900 font-mono mt-1">
+                            {{ $user->last_login_at ? \Carbon\Carbon::parse($user->last_login_at)->diffForHumans() : 'لم يسجل دخول بعد' }}
+                        </p>
+                        <span class="text-[10px] text-indigo-600">{{ $user->last_login_at ?? 'غير متوفر' }}</span>
+                    </div>
+                </div>
             </div>
         </div>
         @endif

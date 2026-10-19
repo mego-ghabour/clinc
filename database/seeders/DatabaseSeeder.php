@@ -15,11 +15,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            RolesAndPermissionsSeeder::class,
+            LabTestSeeder::class,
+            MedicineSeeder::class,
+            InsuranceCompanySeeder::class,
+            ClinicDataSeeder::class,
         ]);
+
+        $superAdmin = User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'مدير النظام (Super Admin)',
+                'username' => 'admin',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'role' => 'Super Admin',
+                'status' => 'نشط',
+            ]
+        );
+
+        $superAdminRole = \Spatie\Permission\Models\Role::where('name', 'Super Admin')->first();
+        if ($superAdminRole) {
+            $superAdmin->assignRole($superAdminRole);
+        }
     }
 }

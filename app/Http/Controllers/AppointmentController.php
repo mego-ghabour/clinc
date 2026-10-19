@@ -57,7 +57,7 @@ class AppointmentController extends Controller
         return view('appointments.index', compact('appointments', 'patients', 'doctors'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, \App\Services\WhatsAppService $whatsAppService)
     {
         $request->validate([
             'patient_id' => 'required|exists:patients,id',
@@ -67,23 +67,56 @@ class AppointmentController extends Controller
             'appointment_time' => 'required',
         ]);
 
+        // Prevent Double Booking (Conflict Check)
+        $conflict = Appointment::where('doctor_id', $request->doctor_id)
+            ->whereDate('appointment_date', $request->appointment_date)
+            ->where('appointment_time', $request->appointment_time)
+            ->where('status', '!=', 'ملغي')
+            ->exists();
+
+        if ($conflict) {
+            return back()->withErrors([
+                'appointment_time' => 'عذراً، هذا التوقيت محجوز مسبقاً لدى هذا الطبيب. يرجى اختيار وقت آخر.'
+            ])->withInput();
+        }
+
         $data = $request->all();
         $data['status'] = 'مجدول'; // Default status for new appointments
 
-        Appointment::create($data);
+        $appointment = Appointment::create($data);
 
-        return back()->with('success', 'تم حجز الموعد بنجاح.');
+        // Send automated WhatsApp confirmation
+        $whatsAppService->sendBookingConfirmation($appointment);
+
+        return back()->with('success', 'تم حجز الموعد بنجاح وإرسال تأكيد الحجز للمريض.');
     }
 
     public function update(Request $request, Appointment $appointment)
     {
+        // If rescheduling, check for conflicts
+        if ($request->has('appointment_date') && $request->has('appointment_time')) {
+            $doctorId = $request->input('doctor_id', $appointment->doctor_id);
+            $conflict = Appointment::where('doctor_id', $doctorId)
+                ->whereDate('appointment_date', $request->appointment_date)
+                ->where('appointment_time', $request->appointment_time)
+                ->where('id', '!=', $appointment->id)
+                ->where('status', '!=', 'ملغي')
+                ->exists();
+
+            if ($conflict) {
+                return back()->withErrors([
+                    'appointment_time' => 'عذراً، هذا التوقيت محجوز مسبقاً لدى هذا الطبيب.'
+                ])->withInput();
+            }
+        }
+
         $request->validate([
-            'status' => 'required|string'
+            'status' => 'nullable|string'
         ]);
 
-        $appointment->update($request->only('status'));
+        $appointment->update($request->only('status', 'appointment_date', 'appointment_time', 'doctor_id', 'service', 'notes'));
 
-        return back()->with('success', 'تم تحديث حالة الموعد بنجاح.');
+        return back()->with('success', 'تم تحديث الموعد بنجاح.');
     }
 
     public function destroy(Appointment $appointment)

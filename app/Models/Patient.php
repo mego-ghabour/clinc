@@ -74,4 +74,29 @@ class Patient extends Model
     {
         return $this->hasMany(Visit::class);
     }
+
+    public function labRequests()
+    {
+        return $this->hasMany(LabRequest::class);
+    }
+
+    public function prescriptions()
+    {
+        return $this->hasMany(Prescription::class);
+    }
+
+    public function insurances()
+    {
+        return $this->hasMany(PatientInsurance::class);
+    }
+
+    public function activeInsurance()
+    {
+        return $this->hasOne(PatientInsurance::class)->where('is_active', true)->latestOfMany();
+    }
+
+    public function claims()
+    {
+        return $this->hasMany(InsuranceClaim::class);
+    }
 }

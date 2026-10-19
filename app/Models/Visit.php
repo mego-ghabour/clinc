@@ -57,5 +57,15 @@ class Visit extends Model
     {
         return $this->belongsTo(Appointment::class);
     }
+
+    public function labRequests()
+    {
+        return $this->hasMany(LabRequest::class);
+    }
+
+    public function prescriptions()
+    {
+        return $this->hasMany(Prescription::class);
+    }
 }
 

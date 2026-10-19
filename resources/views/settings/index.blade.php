@@ -56,6 +56,9 @@
             <button @click="activeTab = 'contact'" :class="activeTab === 'contact' ? 'bg-white text-teal-600 shadow-sm border-teal-200' : 'text-gray-500 hover:bg-gray-100 border-transparent'" class="border whitespace-nowrap text-right px-4 py-3 rounded-xl text-sm font-bold transition flex items-center gap-3 shrink-0">
                 <i class="fa-solid fa-address-book w-5 text-center"></i> بيانات التواصل للطباعة
             </button>
+            <button @click="activeTab = 'whatsapp'" :class="activeTab === 'whatsapp' ? 'bg-white text-emerald-600 shadow-sm border-emerald-200' : 'text-gray-500 hover:bg-gray-100 border-transparent'" class="border whitespace-nowrap text-right px-4 py-3 rounded-xl text-sm font-bold transition flex items-center gap-3 shrink-0">
+                <i class="fa-brands fa-whatsapp w-5 text-center text-emerald-500 text-base"></i> إشعارات الواتساب
+            </button>
             <button @click="activeTab = 'backup'" :class="activeTab === 'backup' ? 'bg-white text-teal-600 shadow-sm border-teal-200' : 'text-gray-500 hover:bg-gray-100 border-transparent'" class="border whitespace-nowrap text-right px-4 py-3 rounded-xl text-sm font-bold transition flex items-center gap-3 shrink-0">
                 <i class="fa-solid fa-shield-halved w-5 text-center"></i> النسخ الاحتياطي والأمان
             </button>
@@ -332,6 +335,372 @@
                             <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">العنوان الفعلي (National Address)</label>
                             <textarea name="clinic_address" rows="3" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-teal-custom focus:bg-white transition text-sm font-bold resize-none" placeholder="المدينة، الحي، اسم الشارع، المبنى...">{{ $settings['clinic_address']->value ?? '' }}</textarea>
                             <p class="text-[10px] font-bold text-gray-400 mt-1">يُطبع هذا العنوان في ترويسة التقارير الطبية وفواتير المرضى.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: WhatsApp Gateway & Notifications -->
+                <div x-show="activeTab === 'whatsapp'" x-transition.opacity class="flex-1 space-y-6" style="display: none;" x-data="{
+                    connectionMode: '{{ $settings['whatsapp_connection_type']->value ?? 'qr' }}',
+                    qrCodeValue: 'WACLINC-SESSION-{{ time() }}',
+                    refreshQr() {
+                        this.qrCodeValue = 'WACLINC-SESSION-' + Date.now();
+                    }
+                }">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 border-b border-gray-100 gap-3">
+                        <div>
+                            <h3 class="text-lg font-black text-gray-800 flex items-center gap-2">
+                                <i class="fa-brands fa-whatsapp text-emerald-500 text-2xl"></i> ربط وإعدادات الواتساب الذكية
+                            </h3>
+                            <p class="text-xs text-gray-500 font-bold mt-0.5">اختر طريقة الربط المناسبة: بالمسح التقليدي لكود QR أو الربط بمزود سحابي خارجي.</p>
+                        </div>
+                        <a href="{{ route('whatsapp.logs') }}" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition flex items-center gap-2 border border-emerald-200 shadow-sm shrink-0">
+                            <i class="fa-solid fa-list-check text-emerald-600"></i> سجل الرسائل المرسلة
+                        </a>
+                    </div>
+
+                    <!-- General Toggle: Enable / Disable -->
+                    <div class="p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shadow-sm shrink-0">
+                                <i class="fa-solid fa-power-off"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-black text-emerald-950">حالة خدمة إشعارات الواتساب</h4>
+                                <p class="text-[11px] text-emerald-800 font-medium">تفعيل أو إيقاف إرسال الرسائل التلقائية للمرضى (تأكيد الحجز، التذكير، نتائج المختبر، الصيدلية).</p>
+                            </div>
+                        </div>
+                        <div>
+                            <select name="whatsapp_enabled" class="px-4 py-2 rounded-xl border border-emerald-300 bg-white text-xs font-bold text-gray-800 focus:outline-none shadow-sm cursor-pointer">
+                                <option value="1" {{ ($settings['whatsapp_enabled']->value ?? '1') === '1' ? 'selected' : '' }}>🟢 مفعل (Active)</option>
+                                <option value="0" {{ ($settings['whatsapp_enabled']->value ?? '1') === '0' ? 'selected' : '' }}>🔴 معطل مؤقتاً (Disabled)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Important Technical Note About WhatsApp Linked Devices Scanner -->
+                    <div class="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-900 text-xs font-medium space-y-1.5">
+                        <div class="flex items-center gap-2 font-black text-amber-950">
+                            <i class="fa-solid fa-circle-exclamation text-amber-600 text-base"></i>
+                            <span>تنبيه هام بخصوص مسح رمز QR من كاميرا تطبيق WhatsApp (الأجهزة المرتبطة):</span>
+                        </div>
+                        <p class="leading-relaxed text-[11px] text-amber-900/90">
+                            خاصية <strong>الأجهزة المرتبطة (Linked Devices)</strong> في تطبيق واتساب الرسمي تشترط تشفيراً خاصاً متصلاً بسيرفرات WhatsApp Web، وترفض أي باركود عشوائي وتُظهر رسالة <em>"رمز QR غير صحيح"</em> إذا لم يكن الرمز صادراً من محرك ربط وسيط (مثل بوابة <strong>UltraMsg</strong> أو خادم <strong>WAHA</strong>).
+                            لذا يوفر لك النظام طريقتين للعمل: <strong>الربط الآلي عبر بوابة مع عرض كود الـ QR الحقيقي</strong>، أو <strong>المراسلة الفورية المباشرة المجانية بنقرة زر (WhatsApp Web)</strong> دون الحاجة لأي وسيط.
+                        </p>
+                    </div>
+
+                    @php
+                        $activeMode = $settings['whatsapp_connection_type']->value ?? 'local';
+                        $instanceId = $settings['whatsapp_instance_id']->value ?? '';
+                        $apiToken = $settings['whatsapp_api_token']->value ?? '';
+                        $isQrConnected = ($settings['whatsapp_qr_status']->value ?? 'disconnected') === 'connected';
+                        $connectedPhone = $settings['whatsapp_connected_phone']->value ?? '';
+                        $connectedAt = $settings['whatsapp_connected_at']->value ?? '';
+                    @endphp
+
+                    <!-- Connection Method Selector (3 Modes) -->
+                    <div class="space-y-4" x-data="{
+                        mode: '{{ $activeMode }}',
+                        qrImage: '',
+                        qrState: 'loading',
+                        isPolling: false,
+                        fetchLocalQr() {
+                            this.qrState = 'loading';
+                            fetch('{{ route('whatsapp.local.qr') }}')
+                                .then(r => r.json())
+                                .then(data => {
+                                    if (data.status === 'qr_ready') {
+                                        this.qrImage = data.qr;
+                                        this.qrState = 'ready';
+                                    } else if (data.status === 'connected') {
+                                        this.qrState = 'connected';
+                                        window.location.reload();
+                                    } else if (data.status === 'offline') {
+                                        this.qrState = 'offline';
+                                    } else {
+                                        this.qrState = 'waiting';
+                                    }
+                                })
+                                .catch(() => {
+                                    this.qrState = 'offline';
+                                });
+                        },
+                        checkLocalStatus() {
+                            fetch('{{ route('whatsapp.local.status') }}', { headers: { 'Accept': 'application/json' } })
+                                .then(r => r.json())
+                                .then(data => {
+                                    if (data.connected) {
+                                        window.location.reload();
+                                    }
+                                });
+                        },
+                        init() {
+                            if (this.mode === 'local') {
+                                this.fetchLocalQr();
+                                setInterval(() => {
+                                    if (this.mode === 'local' && this.qrState === 'ready') {
+                                        this.checkLocalStatus();
+                                    }
+                                }, 4000);
+                            }
+                        }
+                    }">
+                        <label class="block text-xs font-black text-gray-700 uppercase">اختر طريقة الربط والتشغيل المناسبة لمنشأتك:</label>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Option 1: Local Baileys Microservice (Recommended) -->
+                            <label @click="mode = 'local'; fetchLocalQr()" :class="mode === 'local' ? 'border-emerald-500 bg-emerald-50/50 ring-2 ring-emerald-200' : 'border-gray-200 bg-white hover:border-gray-300'" class="p-4 rounded-2xl border-2 transition cursor-pointer flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fa-solid fa-qrcode text-emerald-600 text-lg"></i>
+                                            <h4 class="text-xs font-black text-gray-900">مكتبة Baileys المحلية (مجاني)</h4>
+                                        </div>
+                                        <input type="radio" name="whatsapp_connection_type" value="local" :checked="mode === 'local'" class="text-emerald-600 focus:ring-emerald-500">
+                                    </div>
+                                    <p class="text-[11px] text-gray-500 font-medium leading-relaxed">
+                                        توليد كود الـ QR الحقيقي المشفر محلياً بواسطة مكتبة Baileys: يقبله هاتف واتساب فوراً ومجاني 100% بدون أي وسيط ولا اشتراك شهري.
+                                    </p>
+                                </div>
+                                <span class="inline-block mt-3 bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 rounded-full font-bold self-start">⭐ الخيار الموصى به (0$)</span>
+                            </label>
+
+                            <!-- Option 2: Direct Click-to-Chat (Free) -->
+                            <label @click="mode = 'direct'" :class="mode === 'direct' ? 'border-teal-500 bg-teal-50/50 ring-2 ring-teal-200' : 'border-gray-200 bg-white hover:border-gray-300'" class="p-4 rounded-2xl border-2 transition cursor-pointer flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fa-brands fa-whatsapp text-teal-600 text-lg"></i>
+                                            <h4 class="text-xs font-black text-gray-900">المراسلة المباشرة الفورية</h4>
+                                        </div>
+                                        <input type="radio" name="whatsapp_connection_type" value="direct" :checked="mode === 'direct'" class="text-teal-600 focus:ring-teal-500">
+                                    </div>
+                                    <p class="text-[11px] text-gray-500 font-medium leading-relaxed">
+                                        إرسال رسائل التذكير وتأكيد الحجز بنقرة واحدة عبر تطبيق WhatsApp أو واتساب ويب مباشرة بدون كود وبدون أي وسيط خارجي.
+                                    </p>
+                                </div>
+                                <span class="inline-block mt-3 bg-teal-100 text-teal-800 text-[10px] px-2 py-0.5 rounded-full font-bold self-start">100% فوري ومباشر</span>
+                            </label>
+
+                            <!-- Option 3: External Gateway (UltraMsg / Custom) -->
+                            <label @click="mode = 'gateway'" :class="mode === 'gateway' ? 'border-purple-500 bg-purple-50/50 ring-2 ring-purple-200' : 'border-gray-200 bg-white hover:border-gray-300'" class="p-4 rounded-2xl border-2 transition cursor-pointer flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fa-solid fa-cloud-arrow-up text-purple-600 text-lg"></i>
+                                            <h4 class="text-xs font-black text-gray-900">بوابات سحابية (UltraMsg / API)</h4>
+                                        </div>
+                                        <input type="radio" name="whatsapp_connection_type" value="gateway" :checked="mode === 'gateway'" class="text-purple-600 focus:ring-purple-500">
+                                    </div>
+                                    <p class="text-[11px] text-gray-500 font-medium leading-relaxed">
+                                        الربط عبر بوابات الـ API السحابية المدفوعة مثل UltraMsg أو Wasender أو WAHA Docker عبر الرابط والتوكن السري.
+                                    </p>
+                                </div>
+                                <span class="inline-block mt-3 bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded-full font-bold self-start">بوابات خارجية</span>
+                            </label>
+                        </div>
+
+                        <!-- Active Connection Status Card -->
+                        @if($isQrConnected)
+                            <div class="p-5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-green-50 border-2 border-emerald-300 flex flex-col md:flex-row items-center justify-between gap-4 mt-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl shadow-md shrink-0">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                    </div>
+                                    <div class="space-y-0.5">
+                                        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-200 text-emerald-900 text-[11px] font-black">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-600 animate-ping"></span>
+                                            الجلسة متصلة ونشطة
+                                        </div>
+                                        <h4 class="text-sm font-black text-gray-900">واتساب العيادة مرتبط وجاهز لإرسال الإشعارات التلقائية للمرضى: <span class="font-mono text-emerald-800" dir="ltr">+{{ $connectedPhone ?: '9665xxxxxxxx' }}</span></h4>
+                                        <p class="text-[11px] text-gray-500 font-medium">تاريخ الربط: <span class="font-mono">{{ $connectedAt ?: now()->format('Y-m-d H:i') }}</span> • الاتصال يعمل بنجاح</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('whatsapp.local.status') }}" class="px-4 py-2 rounded-xl bg-white hover:bg-gray-50 text-emerald-700 border border-emerald-200 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-arrows-rotate"></i> تحديث الحالة
+                                    </a>
+                                    <form action="{{ route('whatsapp.local.logout') }}" method="POST" onsubmit="return confirm('هل أنت متأكد من قطع اتصال جلسة الواتساب؟');">
+                                        @csrf
+                                        <button type="submit" class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold transition flex items-center gap-1.5">
+                                            <i class="fa-solid fa-power-off"></i> قطع الاتصال (Disconnect)
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Panel 1: Local Baileys Microservice Live QR -->
+                        <div x-show="mode === 'local'" x-transition class="p-6 rounded-3xl border border-emerald-200 bg-white shadow-sm space-y-6 mt-4">
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                                
+                                <div class="lg:col-span-7 space-y-4">
+                                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+                                        كود الـ QR المشفر المعتمد من WhatsApp Multi-Device
+                                    </div>
+
+                                    <h4 class="text-base font-black text-gray-900">خطوات ربط واتساب العيادة بمسح الرمز:</h4>
+                                    
+                                    <ol class="space-y-2.5 text-xs text-gray-700 font-medium">
+                                        <li class="flex items-start gap-3 p-2.5 rounded-xl bg-gray-50 border border-gray-100">
+                                            <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-xs shrink-0">1</span>
+                                            <span>افتح تطبيق <strong>WhatsApp</strong> على الهاتف الخاص بالعيادة أو الاستقبال.</span>
+                                        </li>
+                                        <li class="flex items-start gap-3 p-2.5 rounded-xl bg-gray-50 border border-gray-100">
+                                            <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-xs shrink-0">2</span>
+                                            <span>اضغط على <strong>الإعدادات (Settings)</strong> في الآيفون، أو <strong>القائمة (⋮)</strong> في الأندرويد.</span>
+                                        </li>
+                                        <li class="flex items-start gap-3 p-2.5 rounded-xl bg-gray-50 border border-gray-100">
+                                            <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-xs shrink-0">3</span>
+                                            <span>اختر <strong>الأجهزة المرتبطة (Linked Devices)</strong> ثم اضغط على <strong>ربط جهاز (Link a Device)</strong>.</span>
+                                        </li>
+                                        <li class="flex items-start gap-3 p-2.5 rounded-xl bg-gray-50 border border-gray-100">
+                                            <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-xs shrink-0">4</span>
+                                            <span>وجّه كاميرا الهاتف نحو الكود المباشر في اليسار: <strong>سيقبله واتساب فوراً ويرتبط هاتف العيادة بدون أي أخطاء!</strong></span>
+                                        </li>
+                                    </ol>
+
+                                    <div class="p-3 bg-gray-50 rounded-2xl border border-gray-200/80 space-y-1.5 mt-2">
+                                        <label class="block text-xs font-black text-gray-800">
+                                            <i class="fa-solid fa-link text-emerald-600"></i> رابط خادم الواتساب (محلي أو سحابي):
+                                        </label>
+                                        <input type="text" name="whatsapp_local_service_url" value="{{ $settings['whatsapp_local_service_url']->value ?? env('WHATSAPP_LOCAL_URL', 'http://127.0.0.1:3000') }}" placeholder="http://127.0.0.1:3000 أو https://wa.yourdomain.com أو https://app.onrender.com" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-mono focus:border-emerald-500 focus:outline-none text-left" dir="ltr">
+                                        <p class="text-[10px] text-gray-400 font-medium">إذا كان موقع العيادة على استضافة مشتركة، ضع هنا رابط الخدمة السحابية (Render أو Cloud VPS).</p>
+                                    </div>
+
+                                    <div class="flex items-center gap-3 pt-2">
+                                        <a href="{{ route('whatsapp.local.status') }}" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl transition shadow-md shadow-emerald-600/20 flex items-center gap-2">
+                                            <i class="fa-solid fa-arrows-rotate"></i> فحص وتأكيد الاتصال (Check Status)
+                                        </a>
+                                        <button type="button" @click="fetchLocalQr()" class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl transition flex items-center gap-2">
+                                            <i class="fa-solid fa-sync"></i> تحديث الرمز
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Live Baileys QR Code Display Box -->
+                                <div class="lg:col-span-5 flex flex-col items-center justify-center p-6 bg-gradient-to-b from-emerald-50/50 to-teal-50/30 border-2 border-dashed border-emerald-200 rounded-3xl text-center space-y-3">
+                                    <!-- QR Ready -->
+                                    <div x-show="qrState === 'ready'" class="space-y-3">
+                                        <div class="p-3 bg-white rounded-2xl shadow-lg border border-gray-100 inline-block">
+                                            <img :src="qrImage" alt="Live WhatsApp Baileys QR Code" class="w-48 h-48 rounded-xl object-contain">
+                                        </div>
+                                        <div>
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+                                                <i class="fa-solid fa-check-circle text-emerald-600"></i> الرمز جاهز للمسح من الهاتف
+                                            </span>
+                                            <p class="text-[10px] text-gray-400 font-medium mt-1">يتم تحديث الرمز تلقائياً لضمان أمان الاتصال.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Loading State -->
+                                    <div x-show="qrState === 'loading' || qrState === 'waiting'" class="w-48 h-48 rounded-2xl bg-white border border-gray-100 flex flex-col items-center justify-center p-4 text-center space-y-2 shadow-sm">
+                                        <i class="fa-solid fa-circle-notch fa-spin text-3xl text-emerald-600"></i>
+                                        <p class="text-xs font-bold text-gray-700">جاري توليد كود الـ QR...</p>
+                                        <p class="text-[10px] text-gray-400">اتصال مباشر بسيرفرات واتساب</p>
+                                    </div>
+
+                                    <!-- Offline State -->
+                                    <div x-show="qrState === 'offline'" class="w-48 h-48 rounded-2xl bg-amber-50 border-2 border-dashed border-amber-300 flex flex-col items-center justify-center p-4 text-center space-y-2">
+                                        <i class="fa-solid fa-triangle-exclamation text-3xl text-amber-600"></i>
+                                        <p class="text-xs font-bold text-amber-900">الخدمة المحلية متوقفة</p>
+                                        <p class="text-[10px] text-amber-800">شغّل <code class="font-mono bg-white px-1 py-0.5 rounded">start-whatsapp-service.bat</code></p>
+                                        <button type="button" @click="fetchLocalQr()" class="text-[10px] font-bold text-amber-900 underline mt-1">إعادة المحاولة</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Panel 2: Direct Click-to-Chat (Free & Instant) -->
+                        <div x-show="mode === 'direct'" x-transition class="p-6 rounded-3xl border border-teal-200 bg-white shadow-sm space-y-4 mt-4">
+                            <div class="flex items-start gap-4">
+                                <div class="w-14 h-14 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center text-2xl shrink-0">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                </div>
+                                <div class="space-y-2">
+                                    <h4 class="text-base font-black text-gray-900">المراسلة الفورية المباشرة بنقرة واحدة (WhatsApp Click-to-Chat):</h4>
+                                    <p class="text-xs text-gray-600 leading-relaxed font-medium">
+                                        هذه الميزة <strong>مفعلة وتعمل مباشرة في النظام بدون أي إعدادات أو رسوم أو بوابات وسيطة!</strong>
+                                    </p>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                                        <div class="p-3 bg-teal-50/50 rounded-xl border border-teal-100">
+                                            <h5 class="text-xs font-bold text-teal-900 flex items-center gap-1.5 mb-1">
+                                                <i class="fa-solid fa-check text-teal-600"></i> من جدول المواعيد:
+                                            </h5>
+                                            <p class="text-[11px] text-teal-800">يوجد زر أيقونة الواتساب بجوار كل موعد، يفتح المحادثة والرسالة مكتوبة باسم وتاريخ ووقت المريض.</p>
+                                        </div>
+                                        <div class="p-3 bg-teal-50/50 rounded-xl border border-teal-100">
+                                            <h5 class="text-xs font-bold text-teal-900 flex items-center gap-1.5 mb-1">
+                                                <i class="fa-solid fa-shield text-teal-600"></i> أمان وحماية 100%:
+                                            </h5>
+                                            <p class="text-[11px] text-teal-800">الإرسال يتم من خلال تطبيق WhatsApp الرسمي بهاتفك أو كمبيوترك دون أي خطر لتعليق الرقم.</p>
+                                        </div>
+                                        <div class="p-3 bg-teal-50/50 rounded-xl border border-teal-100">
+                                            <h5 class="text-xs font-bold text-teal-900 flex items-center gap-1.5 mb-1">
+                                                <i class="fa-solid fa-coins text-teal-600"></i> مجاني مدى الحياة:
+                                            </h5>
+                                            <p class="text-[11px] text-teal-800">لا يتطلب أي رسوم شهرية أو بطاقات بنكية، مناسب جداً لعيادات الأسنان والمراكز الطبية.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Panel 3: External API Gateway View (UltraMsg / Custom) -->
+                        <div x-show="mode === 'gateway'" x-transition class="p-6 rounded-3xl border border-purple-200 bg-white shadow-sm space-y-4 mt-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">معرف الحساب (UltraMsg Instance ID)</label>
+                                    <input type="text" name="whatsapp_instance_id" value="{{ $instanceId }}" placeholder="instance101567" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold font-mono focus:bg-white focus:border-purple-600 outline-none text-right" dir="ltr">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">رمز التوكن السري (API Token / Secret)</label>
+                                    <input type="password" name="whatsapp_api_token" value="{{ $apiToken }}" placeholder="••••••••••••••••" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold font-mono focus:bg-white focus:border-purple-600 outline-none text-right" dir="ltr">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">رابط بوابة مخصصة (Custom URL اختياري)</label>
+                                    <input type="url" name="whatsapp_api_url" value="{{ $settings['whatsapp_api_url']->value ?? '' }}" placeholder="https://api.ultramsg.com/instanceXXXX/messages/chat" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold font-mono focus:bg-white focus:border-purple-600 outline-none text-right" dir="ltr">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notification Templates Section (Available for both modes) -->
+                    <div class="space-y-4 pt-4 border-t border-gray-100">
+                        <h4 class="text-xs font-black text-gray-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-pen-to-square text-teal-600"></i> قوالب رسائل الواتساب التلقائية:
+                        </h4>
+
+                        <!-- Template 1: Booking Confirmation -->
+                        <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-200/80 space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-black text-gray-700">1. رسالة تأكيد الحجز للمريض (Booking Confirmation):</label>
+                                <span class="text-[10px] text-gray-400 font-bold">المتغيرات: {patient_name}, {doctor_name}, {date}, {time}, {clinic_name}, {appointment_number}</span>
+                            </div>
+                            <textarea name="whatsapp_template_booking" rows="2" class="w-full p-3 bg-white border border-gray-200 rounded-xl text-xs font-medium leading-relaxed resize-none focus:outline-none focus:border-teal-500">{{ $settings['whatsapp_template_booking']->value ?? "مرحباً عزيزنا المراجع {patient_name}، تم تأكيد موعدك بنجاح في {clinic_name}.\n📅 التاريخ: {date}\n⏰ الوقت: {time}\n👨‍⚕️ الطبيب: {doctor_name}\nرقم الموعد: #{appointment_number}\nنتمنى لكم دوام الصحة والعافية." }}</textarea>
+                        </div>
+
+                        <!-- Template 2: Appointment Reminder -->
+                        <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-200/80 space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-black text-gray-700">2. رسالة التذكير بالموعد (Appointment Reminder):</label>
+                                <span class="text-[10px] text-gray-400 font-bold">المتغيرات: {patient_name}, {doctor_name}, {date}, {time}, {clinic_name}</span>
+                            </div>
+                            <textarea name="whatsapp_template_reminder" rows="2" class="w-full p-3 bg-white border border-gray-200 rounded-xl text-xs font-medium leading-relaxed resize-none focus:outline-none focus:border-teal-500">{{ $settings['whatsapp_template_reminder']->value ?? "تذكير بموعدك القادم في {clinic_name}:\nنود تذكيركم بموعدكم غداً مع د. {doctor_name} بتاريخ {date} في تمام الساعة {time}.\nيرجى الحضور قبل الموعد بـ 10 دقائق لتسجيل الدخول." }}</textarea>
+                        </div>
+
+                        <!-- Template 3: Lab Ready -->
+                        <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-200/80 space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-black text-gray-700">3. إشعار صدور نتائج المختبر (Lab Results Ready):</label>
+                                <span class="text-[10px] text-gray-400 font-bold">المتغيرات: {patient_name}, {clinic_name}, {request_number}</span>
+                            </div>
+                            <textarea name="whatsapp_template_lab_ready" rows="2" class="w-full p-3 bg-white border border-gray-200 rounded-xl text-xs font-medium leading-relaxed resize-none focus:outline-none focus:border-teal-500">{{ $settings['whatsapp_template_lab_ready']->value ?? "عزيزنا المراجع {patient_name}، نفيدكم بصدور نتائج تحاليلكم المخبرية في {clinic_name} لطلب رقم #{request_number}.\nيمكنكم الآن مراجعة قسم المختبر أو الطبيب المعالج للاطلاع على النتائج." }}</textarea>
                         </div>
                     </div>
                 </div>

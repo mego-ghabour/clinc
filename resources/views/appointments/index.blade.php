@@ -133,6 +133,26 @@
                                         @endforeach
                                     </div>
                                 </div>
+
+                                <!-- WhatsApp Actions -->
+                                <form action="{{ route('appointments.whatsapp', $appointment->id) }}" method="POST" class="inline" title="إرسال تذكير واتساب آلي عبر بوابة النظام">
+                                    @csrf
+                                    <input type="hidden" name="type" value="reminder">
+                                    <button type="submit" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white flex items-center justify-center transition shadow-sm" title="إرسال تذكير واتساب آلي">
+                                        <i class="fa-brands fa-whatsapp text-sm"></i>
+                                    </button>
+                                </form>
+
+                                @php
+                                    $patientPhone = preg_replace('/[^0-9]/', '', $appointment->patient->mobile ?? '');
+                                    if (str_starts_with($patientPhone, '05')) { $patientPhone = '966' . substr($patientPhone, 1); }
+                                    $waText = urlencode("مرحباً عزيزنا {$appointment->patient->first_name}، نود تذكيركم بموعدكم لدى د. {$appointment->doctor->name} بتاريخ {$appointment->appointment_date} في تمام الساعة " . ($appointment->appointment_time ? \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') : ''));
+                                @endphp
+                                @if($patientPhone)
+                                    <a href="https://wa.me/{{ $patientPhone }}?text={{ $waText }}" target="_blank" class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-600 hover:text-white flex items-center justify-center transition shadow-sm" title="فتح شات الواتساب مباشرة">
+                                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                                    </a>
+                                @endif
                                 
                                 <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا الموعد نهائياً؟');">
                                     @csrf

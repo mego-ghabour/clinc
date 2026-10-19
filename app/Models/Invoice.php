@@ -73,4 +73,9 @@ class Invoice extends Model
     {
         return $this->total - $this->paid_amount;
     }
+
+    public function insuranceClaim()
+    {
+        return $this->hasOne(InsuranceClaim::class);
+    }
 }

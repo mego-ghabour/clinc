@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Clinic;
+use App\Models\Appointment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -106,11 +107,17 @@ class DoctorController extends Controller
 
     public function show($id)
     {
-        $doctor = User::with('clinic')->findOrFail($id);
+        $doctor = User::with(['clinic', 'doctorSchedules', 'doctorLeaves'])->findOrFail($id);
         
         $clinics = Clinic::all();
+        $recentAppointments = Appointment::where('doctor_id', $id)
+            ->with('patient')
+            ->orderBy('appointment_date', 'desc')
+            ->orderBy('appointment_time', 'desc')
+            ->take(5)
+            ->get();
 
-        return view('doctors.show', compact('doctor', 'clinics'));
+        return view('doctors.show', compact('doctor', 'clinics', 'recentAppointments'));
     }
 
     public function update(Request $request, $id)
