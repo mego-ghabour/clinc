@@ -81,36 +81,73 @@
     </div>
 
     <!-- Live Search & Interactive Filter Bar -->
-    <div class="bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4 sticky top-2 z-20 print:hidden">
-        <!-- Search Input -->
-        <div class="relative w-full md:w-96">
-            <i class="fa-solid fa-magnifying-glass absolute right-4 top-3.5 text-gray-400"></i>
-            <input 
-                type="text" 
-                x-model="searchQuery" 
-                placeholder="ابحث عن أي قسم، ميزة، أو زر (مثال: روشتة، تأمين، باركود، سحب عينة، صلاحيات)..."
-                class="w-full pr-11 pl-4 py-2.5 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 text-sm font-medium transition"
-            >
-            <button 
-                x-show="searchQuery.length > 0" 
-                @click="searchQuery = ''" 
-                class="absolute left-3 top-3 text-gray-400 hover:text-gray-600 text-xs bg-gray-100 p-1 rounded-full"
-            >
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+    <div class="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-gray-100 space-y-4 print:hidden">
+        <!-- Top Row: Search Input & Quick Status -->
+        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+            <div class="relative flex-1 max-w-2xl">
+                <i class="fa-solid fa-magnifying-glass absolute right-4 top-3.5 text-teal-600"></i>
+                <input 
+                    type="text" 
+                    x-model="searchQuery" 
+                    placeholder="ابحث بالاسم أو الميزة في الدليل (مثال: روشتة، تأمين، باركود، سحب عينة، صلاحيات، واتساب)..."
+                    class="w-full pr-11 pl-10 py-3 rounded-2xl border border-gray-200 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium transition shadow-xs"
+                >
+                <button 
+                    x-show="searchQuery.length > 0" 
+                    @click="searchQuery = ''" 
+                    class="absolute left-3 top-3 text-gray-400 hover:text-gray-600 text-xs bg-gray-100 hover:bg-gray-200 p-1.5 rounded-full transition"
+                    title="مسح البحث"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Active Search Indicator -->
+            <div x-show="searchQuery.trim().length > 0" class="text-xs font-bold text-teal-800 bg-teal-50 px-4 py-2.5 rounded-xl border border-teal-100 flex items-center gap-2 shrink-0">
+                <i class="fa-solid fa-filter text-teal-600"></i>
+                <span>تصفية نشطة: "<span x-text="searchQuery" class="text-teal-950 font-black"></span>"</span>
+                <button @click="searchQuery = ''" class="text-teal-500 hover:text-teal-800 text-[10px] underline mr-1">إلغاء</button>
+            </div>
         </div>
 
-        <!-- Role Filter Badges -->
-        <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto custom-scrollbar pb-1 md:pb-0 text-xs font-bold">
-            <span class="text-gray-400 text-[11px] shrink-0 ml-1">تصفية حسب التخصص:</span>
-            <button @click="selectedRole = 'all'" :class="selectedRole === 'all' ? 'bg-[#0b4a60] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'" class="px-3 py-1.5 rounded-lg transition shrink-0">الكل (14 قسم)</button>
-            <button @click="selectedRole = 'reception'" :class="selectedRole === 'reception' ? 'bg-[#0b4a60] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'" class="px-3 py-1.5 rounded-lg transition shrink-0">الاستقبال والطابور</button>
-            <button @click="selectedRole = 'doctor'" :class="selectedRole === 'doctor' ? 'bg-[#0b4a60] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'" class="px-3 py-1.5 rounded-lg transition shrink-0">الأطباء والكشف</button>
-            <button @click="selectedRole = 'lab'" :class="selectedRole === 'lab' ? 'bg-[#0b4a60] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'" class="px-3 py-1.5 rounded-lg transition shrink-0">المختبر والتحاليل</button>
-            <button @click="selectedRole = 'pharmacy'" :class="selectedRole === 'pharmacy' ? 'bg-[#0b4a60] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'" class="px-3 py-1.5 rounded-lg transition shrink-0">الصيدلية والمخزون</button>
-            <button @click="selectedRole = 'insurance'" :class="selectedRole === 'insurance' ? 'bg-[#0b4a60] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'" class="px-3 py-1.5 rounded-lg transition shrink-0">التأمين والمطالبات</button>
-            <button @click="selectedRole = 'finance'" :class="selectedRole === 'finance' ? 'bg-[#0b4a60] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'" class="px-3 py-1.5 rounded-lg transition shrink-0">المالية والفواتير</button>
-            <button @click="selectedRole = 'admin'" :class="selectedRole === 'admin' ? 'bg-[#0b4a60] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'" class="px-3 py-1.5 rounded-lg transition shrink-0">الإدارة والأمان</button>
+        <!-- Bottom Row: Role Filter Badges (Visible & Wrapped for All Screen Sizes) -->
+        <div class="pt-3 border-t border-gray-100 flex flex-wrap items-center gap-2 text-xs font-bold">
+            <span class="text-gray-500 text-xs font-black shrink-0 ml-2 flex items-center gap-1.5">
+                <i class="fa-solid fa-sliders text-teal-600"></i>
+                <span>تصفية حسب التخصص:</span>
+            </span>
+            <button @click="selectedRole = 'all'" :class="selectedRole === 'all' ? 'bg-[#0b4a60] text-white shadow-sm ring-2 ring-[#0b4a60]/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-border-all text-[11px]"></i>
+                <span>الكل (14 قسم)</span>
+            </button>
+            <button @click="selectedRole = 'reception'" :class="selectedRole === 'reception' ? 'bg-[#0b4a60] text-white shadow-sm ring-2 ring-[#0b4a60]/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-users text-[11px]"></i>
+                <span>الاستقبال والطابور</span>
+            </button>
+            <button @click="selectedRole = 'doctor'" :class="selectedRole === 'doctor' ? 'bg-[#0b4a60] text-white shadow-sm ring-2 ring-[#0b4a60]/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-user-doctor text-[11px]"></i>
+                <span>الأطباء والكشف</span>
+            </button>
+            <button @click="selectedRole = 'lab'" :class="selectedRole === 'lab' ? 'bg-[#0b4a60] text-white shadow-sm ring-2 ring-[#0b4a60]/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-flask-vial text-[11px]"></i>
+                <span>المختبر والتحاليل</span>
+            </button>
+            <button @click="selectedRole = 'pharmacy'" :class="selectedRole === 'pharmacy' ? 'bg-[#0b4a60] text-white shadow-sm ring-2 ring-[#0b4a60]/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-pills text-[11px]"></i>
+                <span>الصيدلية والمخزون</span>
+            </button>
+            <button @click="selectedRole = 'insurance'" :class="selectedRole === 'insurance' ? 'bg-[#0b4a60] text-white shadow-sm ring-2 ring-[#0b4a60]/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-shield-halved text-[11px]"></i>
+                <span>التأمين والمطالبات</span>
+            </button>
+            <button @click="selectedRole = 'finance'" :class="selectedRole === 'finance' ? 'bg-[#0b4a60] text-white shadow-sm ring-2 ring-[#0b4a60]/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-file-invoice-dollar text-[11px]"></i>
+                <span>المالية والفواتير</span>
+            </button>
+            <button @click="selectedRole = 'admin'" :class="selectedRole === 'admin' ? 'bg-[#0b4a60] text-white shadow-sm ring-2 ring-[#0b4a60]/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-user-shield text-[11px]"></i>
+                <span>الإدارة والأمان</span>
+            </button>
         </div>
     </div>
 
